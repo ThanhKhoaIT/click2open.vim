@@ -6,9 +6,9 @@ let s:job_supported = exists('*job_start')
 let s:github_remote = ''
 let s:channel = 0
 
-command! Click2Open call InitClick2Open()
+autocmd VimEnter * call timer_start(2000, function('s:InitClick2Open'), { 'repeat': -1 })
 
-function! InitClick2Open()
+function! s:InitClick2Open(_timer)
   if !s:channel_supported
     echo 'You VIM not support channel'
     return
@@ -19,10 +19,10 @@ function! InitClick2Open()
     return
   endif
 
+  if type(s:channel) == 9 && ch_status(s:channel) == 'open' | return | endif
+
   silent let s:channel = ch_open('0.0.0.0:62032') " Socket connect to Chrome App
   silent call job_start(['git', 'remote', '-v'], { 'callback': 'C2OAssignGithubRemote' })
-
-  echo s:channel
 endfunction
 
 function! Click2OpenFile(file, line, remote)
